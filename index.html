@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UniMate - Hệ thống gợi ý đại học thông minh</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- CSS chung -->
+  <link rel="stylesheet" href="css/style.css">
+
+  <!-- CSS riêng từng trang -->
+  <link rel="stylesheet" href="css/auth.css">
+  <link rel="stylesheet" href="css/home.css">
+  <link rel="stylesheet" href="css/search.css">
+  <link rel="stylesheet" href="css/detail.css">
+  <link rel="stylesheet" href="css/compare.css">
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+
+<!-- ============================================================
+     AUTH PAGES (hiển thị khi chưa đăng nhập)
+     ============================================================ -->
+
+<!-- Trang đăng nhập -->
+<div id="page-login" style="display:block;">
+  <div class="auth-wrap">
+    <div class="auth-card">
+      <div class="auth-logo">
+        <div class="logo-icon">🎓</div>
+        <h2>UniMate</h2>
+        <p>Đăng nhập để sử dụng hệ thống</p>
+      </div>
+      <div class="auth-form">
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="login-email" placeholder="example@gmail.com" value="anhngocanh@gmail.com">
+        </div>
+        <div class="form-group">
+          <label>Mật khẩu</label>
+          <input type="password" id="login-pass" placeholder="••••••••" value="123456">
+        </div>
+        <button class="auth-submit" onclick="doLogin()">Đăng nhập</button>
+      </div>
+      <div class="auth-switch">
+        Chưa có tài khoản? <a onclick="showPage('page-register')">Đăng ký ngay</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Trang đăng ký -->
+<div id="page-register" style="display:none;">
+  <div class="auth-wrap">
+    <div class="auth-card">
+      <div class="auth-logo">
+        <div class="logo-icon">🎓</div>
+        <h2>Tạo tài khoản</h2>
+        <p>Bắt đầu hành trình chọn trường của bạn</p>
+      </div>
+      <div class="auth-form">
+        <div class="form-group">
+          <label>Họ và tên</label>
+          <input type="text" id="reg-name" placeholder="Nguyễn Văn A">
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="reg-email" placeholder="example@gmail.com">
+        </div>
+        <div class="form-group">
+          <label>Mật khẩu</label>
+          <input type="password" id="reg-pass" placeholder="Tối thiểu 6 ký tự">
+        </div>
+        <button class="auth-submit" onclick="doRegister()">Đăng ký</button>
+      </div>
+      <div class="auth-switch">
+        Đã có tài khoản? <a onclick="showPage('page-login')">Đăng nhập</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     APP CHÍNH (hiển thị sau khi đăng nhập)
+     ============================================================ -->
+<div id="app" style="display:none;">
+
+  <!-- NAVBAR (dùng chung tất cả các trang) -->
+  <nav class="navbar">
+    <a class="logo" onclick="navigate('home')">
+      <div class="logo-icon">🎓</div>
+      UniMate
+    </a>
+    <div class="nav-links">
+      <button class="nav-link" id="nav-home"    onclick="navigate('home')">🏠 Trang chủ</button>
+      <button class="nav-link" id="nav-suggest" onclick="navigate('suggest')">✨ Gợi ý</button>
+      <button class="nav-link" id="nav-search"  onclick="navigate('search')">🔍 Tra cứu</button>
+      <button class="nav-link" id="nav-compare" onclick="navigate('compare')">⇄ So sánh</button>
+      <button class="nav-link" id="nav-saved"   onclick="navigate('saved')">♥ Yêu thích</button>
+      <button class="nav-link" id="nav-profile" onclick="navigate('profile')">👤 Hồ sơ</button>
+      <!-- Chỉ hiện với Admin -->
+      <button class="nav-link admin-only" id="nav-admin-schools"
+              onclick="navigate('admin-schools')" style="display:none;">⚙️ Quản lý trường</button>
+      <button class="nav-link admin-only" id="nav-admin-users"
+              onclick="navigate('admin-users')"   style="display:none;">🛡 Quản lý NĐ</button>
+    </div>
+    <div class="nav-user">
+      <div class="user-avatar" id="nav-avatar">A</div>
+      <span id="nav-username">Người dùng</span>
+      <button class="btn-logout" onclick="doLogout()" title="Đăng xuất">⎋</button>
+    </div>
+  </nav>
+
+  <!-- ===== TRANG CHỦ ===== -->
+  <div class="page active" id="page-home">
+    <div class="hero">
+      <div class="hero-badge">🎓 Hệ thống gợi ý đại học thông minh</div>
+      <h1>Chọn đúng trường<br><span>Định hướng tương lai</span></h1>
+      <p>Nhập thông tin để nhận gợi ý trường phù hợp với bạn</p>
+      <div class="hero-btns">
+        <button class="btn-primary" onclick="navigate('suggest')">✨ Nhận gợi ý ngay →</button>
+        <button class="btn-outline" onclick="navigate('search')">🔍 Tra cứu trường</button>
+      </div>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card" onclick="navigate('compare')">
+        <div class="feature-icon" style="background:#EDE9FE;">⇄</div>
+        <h3>So sánh trường</h3>
+        <p>So sánh chi tiết các trường đại học cạnh nhau, tối đa 5 trường</p>
+      </div>
+      <div class="feature-card" onclick="navigate('suggest')">
+        <div class="feature-icon" style="background:#FEF3C7;">✨</div>
+        <h3>Gợi ý thông minh</h3>
+        <p>AI phân tích và đề xuất trường phù hợp nhất với bạn</p>
+      </div>
+      <div class="feature-card" onclick="navigate('search')">
+        <div class="feature-icon" style="background:#D1FAE5;">🔍</div>
+        <h3>Tra cứu trường</h3>
+        <p>Tìm kiếm, lọc và xem thông tin chi tiết các trường</p>
+      </div>
+      <div class="feature-card" onclick="navigate('saved')">
+        <div class="feature-icon" style="background:#FEE2E2;">♥</div>
+        <h3>Lưu yêu thích</h3>
+        <p>Lưu trường yêu thích để so sánh và quản lý nguyện vọng</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== GỢI Ý TRƯỜNG ===== -->
+  <div class="page" id="page-suggest">
+    <div class="page-content">
+      <div class="page-header">
+        <h1>Gợi ý trường đại học</h1>
+        <p>AI phân tích điểm thi và sở thích để đề xuất trường phù hợp nhất</p>
+      </div>
+      <!-- Trạng thái chưa có điểm -->
+      <div id="suggest-no-score" class="card">
+        <div class="empty-state">
+          <div class="empty-icon">⚠️</div>
+          <h3>Chưa có điểm thi</h3>
+          <p>Bạn cần nhập điểm thi trước khi nhận gợi ý trường đại học</p>
+          <button class="btn-primary" onclick="navigate('profile')">📖 Nhập điểm ngay</button>
+        </div>
+      </div>
+      <!-- Kết quả gợi ý -->
+      <div id="suggest-results" style="display:none;">
+        <div class="card" style="background:linear-gradient(135deg,#EEF2FF,#E0E7FF);
+                                  border:1.5px solid #C7D2FE;">
+          <p style="font-size:0.85rem; color:var(--primary); font-weight:600; margin-bottom:4px;">🤖 Phân tích AI</p>
+          <p style="font-size:0.875rem; color:#374151;">
+            Dựa trên điểm thi của bạn, hệ thống gợi ý các trường phù hợp.
+            Điểm trung bình tổ hợp A00 của bạn là <strong id="avg-score">0</strong> điểm.
+          </p>
+        </div>
+        <div id="suggest-list" class="schools-grid" style="margin-top:20px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== TRA CỨU TRƯỜNG ===== -->
+  <div class="page" id="page-search">
+    <div class="page-content">
+      <div class="page-header">
+        <h1>Tra cứu trường đại học</h1>
+        <p>Tìm kiếm và lọc trong danh sách các trường đại học trên toàn quốc</p>
+      </div>
+      <div class="search-bar">
+        <span>🔍</span>
+        <input type="text" id="search-input"
+               placeholder="Tìm kiếm theo tên trường, mã trường..."
+               oninput="filterSchools()">
+      </div>
+      <div class="filters-row">
+        <select class="filter-select" id="filter-region" onchange="filterSchools()">
+          <option value="">Tất cả khu vực</option>
+          <option>Miền Bắc</option>
+          <option>Miền Trung</option>
+          <option>Miền Nam</option>
+        </select>
+        <select class="filter-select" id="filter-type" onchange="filterSchools()">
+          <option value="">Tất cả loại</option>
+          <option>Công lập</option>
+          <option>Dân lập</option>
+          <option>Tư thục</option>
+        </select>
+        <button class="btn-filter-clear" onclick="clearFilters()">⚙ Xóa bộ lọc</button>
+      </div>
+      <div id="search-results" class="schools-grid"></div>
+    </div>
+  </div>
+
+  <!-- ===== CHI TIẾT TRƯỜNG (render bằng JS) ===== -->
+  <div class="page" id="page-detail">
+    <div class="page-content" id="detail-content"></div>
+  </div>
+
+  <!-- ===== SO SÁNH TRƯỜNG ===== -->
+  <div class="page" id="page-compare">
+    <div class="page-content">
+      <div class="page-header">
+        <h1>So sánh trường đại học</h1>
+        <p>Thêm tối đa 5 trường để so sánh thông tin chi tiết</p>
+      </div>
+      <div class="compare-chips" id="compare-chips">
+        <button class="btn-add-school" onclick="openAddCompare()">+ Thêm trường</button>
+      </div>
+      <div id="compare-empty" class="card">
+        <div class="empty-state">
+          <div class="empty-icon">⇄</div>
+          <h3>Thêm trường để bắt đầu so sánh</h3>
+          <p>Chọn từ 2 đến 5 trường để xem bảng so sánh chi tiết</p>
+        </div>
+      </div>
+      <div id="compare-table-wrap" style="display:none;">
+        <div class="card">
+          <div class="table-wrap">
+            <table id="compare-table" class="compare-table"></table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== TRƯỜNG YÊU THÍCH ===== -->
+  <div class="page" id="page-saved">
+    <div class="page-content">
+      <div class="page-header">
+        <h1>Trường yêu thích</h1>
+        <p id="saved-count">Danh sách trường đại học bạn đã lưu (0 trường)</p>
+      </div>
+      <div id="saved-empty" class="card">
+        <div class="empty-state">
+          <div class="empty-icon">♡</div>
+          <h3>Chưa có trường nào</h3>
+          <p>Tìm kiếm và thêm trường vào danh sách yêu thích</p>
+          <button class="btn-outline" onclick="navigate('search')">🎓 Tìm trường ngay</button>
+        </div>
+      </div>
+      <div id="saved-list" class="schools-grid" style="display:none;"></div>
+    </div>
+  </div>
+
+  <!-- ===== HỒ SƠ CÁ NHÂN ===== -->
+  <div class="page" id="page-profile">
+    <div class="page-content">
+      <div class="page-header">
+        <h1>Hồ sơ cá nhân</h1>
+        <p>Cập nhật thông tin và điểm thi để nhận gợi ý trường chính xác hơn</p>
+      </div>
+
+      <!-- Thông tin cá nhân -->
+      <div class="card">
+        <div class="card-title">👤 Thông tin cá nhân</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Họ và tên</label>
+            <input type="text" id="p-name" placeholder="Nguyễn Văn A">
+          </div>
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" id="p-email" placeholder="example@gmail.com">
+          </div>
+          <div class="form-group">
+            <label>Số điện thoại</label>
+            <input type="tel" id="p-phone" placeholder="09xxxxxxxx">
+          </div>
+          <div class="form-group">
+            <label>Trường THPT</label>
+            <input type="text" id="p-school" placeholder="THPT Chu Văn An">
+          </div>
+          <div class="form-group">
+            <label>Tỉnh/Thành phố</label>
+            <input type="text" id="p-city" placeholder="Hà Nội">
+          </div>
+        </div>
+      </div>
+
+      <!-- Điểm thi -->
+      <div class="card">
+        <div class="card-title">📖 Điểm thi THPT (thang 10)</div>
+        <div class="score-grid">
+          <div class="form-group"><label>Toán</label>
+            <input type="number" id="s-toan" placeholder="0-10" min="0" max="10" step="0.1"></div>
+          <div class="form-group"><label>Ngữ văn</label>
+            <input type="number" id="s-van"  placeholder="0-10" min="0" max="10" step="0.1"></div>
+          <div class="form-group"><label>Tiếng Anh</label>
+            <input type="number" id="s-anh"  placeholder="0-10" min="0" max="10" step="0.1"></div>
+          <div class="form-group"><label>Vật lý</label>
+            <input type="number" id="s-ly"   placeholder="0-10" min="0" max="10" step="0.1"></div>
+          <div class="form-group"><label>Hóa học</label>
+            <input type="number" id="s-hoa"  placeholder="0-10" min="0" max="10" step="0.1"></div>
+          <div class="form-group"><label>Sinh học</label>
+            <input type="number" id="s-sinh" placeholder="0-10" min="0" max="10" step="0.1"></div>
+          <div class="form-group"><label>Lịch sử</label>
+            <input type="number" id="s-su"   placeholder="0-10" min="0" max="10" step="0.1"></div>
+          <div class="form-group"><label>Địa lý</label>
+            <input type="number" id="s-dia"  placeholder="0-10" min="0" max="10" step="0.1"></div>
+          <div class="form-group"><label>GDCD</label>
+            <input type="number" id="s-gdcd" placeholder="0-10" min="0" max="10" step="0.1"></div>
+        </div>
+      </div>
+
+      <!-- Sở thích -->
+      <div class="card">
+        <div class="card-title">📍 Sở thích &amp; Nguyện vọng</div>
+        <div class="form-group" style="margin-bottom:16px;">
+          <label>Lĩnh vực quan tâm</label>
+          <div class="tags-wrap" id="interest-tags">
+            <span class="tag" onclick="toggleTag(this)">Công nghệ thông tin</span>
+            <span class="tag" onclick="toggleTag(this)">Kinh tế</span>
+            <span class="tag" onclick="toggleTag(this)">Y dược</span>
+            <span class="tag" onclick="toggleTag(this)">Kỹ thuật</span>
+            <span class="tag" onclick="toggleTag(this)">Luật</span>
+            <span class="tag" onclick="toggleTag(this)">Sư phạm</span>
+            <span class="tag" onclick="toggleTag(this)">Ngoại ngữ</span>
+            <span class="tag" onclick="toggleTag(this)">Nghệ thuật</span>
+            <span class="tag" onclick="toggleTag(this)">Nông nghiệp</span>
+            <span class="tag" onclick="toggleTag(this)">Kiến trúc</span>
+            <span class="tag" onclick="toggleTag(this)">Báo chí - Truyền thông</span>
+            <span class="tag" onclick="toggleTag(this)">Quản trị kinh doanh</span>
+            <span class="tag" onclick="toggleTag(this)">Tài chính - Ngân hàng</span>
+          </div>
+        </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Khu vực mong muốn</label>
+            <select id="p-region">
+              <option>Tất cả khu vực</option>
+              <option>Miền Bắc</option>
+              <option>Miền Trung</option>
+              <option>Miền Nam</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Ngân sách tối đa (triệu/năm)</label>
+            <input type="number" id="p-budget" placeholder="VD: 50">
+          </div>
+        </div>
+      </div>
+
+      <button class="btn-primary" onclick="saveProfile()"
+              style="padding:12px 32px; font-size:0.95rem;">💾 Lưu thông tin</button>
+    </div>
+  </div>
+
+  <!-- ===== ADMIN: QUẢN LÝ TRƯỜNG ===== -->
+  <div class="page" id="page-admin-schools">
+    <div class="page-content">
+      <div class="admin-header">
+        <div>
+          <h1>Quản lý trường đại học</h1>
+          <p id="admin-school-count">10 trường trong hệ thống</p>
+        </div>
+        <button class="btn-add" onclick="openAddSchool()">+ Thêm trường</button>
+      </div>
+      <div class="admin-card">
+        <div class="search-admin">
+          <span style="color:var(--text-secondary);">🔍</span>
+          <input type="text" placeholder="Tìm kiếm..."
+                 oninput="filterAdminSchools(this.value)">
+        </div>
+        <div class="table-wrap">
+          <table id="admin-schools-table">
+            <thead>
+              <tr>
+                <th>Mã</th><th>Tên trường</th><th>Loại</th>
+                <th>Thành phố</th><th>Ngành</th><th>Thao tác</th>
+              </tr>
+            </thead>
+            <tbody id="admin-schools-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== ADMIN: QUẢN LÝ NGƯỜI DÙNG ===== -->
+  <div class="page" id="page-admin-users">
+    <div class="page-content">
+      <div class="admin-header">
+        <div>
+          <h1>Quản lý người dùng</h1>
+          <p id="admin-user-count">1 người dùng trong hệ thống</p>
+        </div>
+      </div>
+      <div class="admin-card">
+        <div class="search-admin">
+          <span style="color:var(--text-secondary);">🔍</span>
+          <input type="text" placeholder="Tìm theo tên, email..."
+                 oninput="filterAdminUsers(this.value)">
+        </div>
+        <div class="table-wrap">
+          <table id="admin-users-table">
+            <thead>
+              <tr>
+                <th>Người dùng</th><th>Email</th><th>Vai trò</th>
+                <th>Trường THPT</th><th>Ngày tham gia</th><th>Thao tác</th>
+              </tr>
+            </thead>
+            <tbody id="admin-users-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end #app -->
+
+<!-- ============================================================
+     MODAL: THÊM / CHỈNH SỬA TRƯỜNG
+     ============================================================ -->
+<div class="modal-overlay" id="modal-school">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-school-title">Thêm trường</span>
+      <button class="modal-close" onclick="closeModal('modal-school')">✕</button>
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Tên trường *</label>
+        <input type="text" id="ms-name" placeholder="Đại học Quốc gia Hà Nội">
+      </div>
+      <div class="form-group">
+        <label>Mã trường *</label>
+        <input type="text" id="ms-code" placeholder="VNU">
+      </div>
+      <div class="form-group">
+        <label>Loại trường</label>
+        <select id="ms-type">
+          <option>Công lập</option><option>Dân lập</option><option>Tư thục</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Thành phố</label>
+        <input type="text" id="ms-city" placeholder="Hà Nội">
+      </div>
+      <div class="form-group">
+        <label>Khu vực</label>
+        <select id="ms-region">
+          <option>Miền Bắc</option><option>Miền Trung</option><option>Miền Nam</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Xếp hạng</label>
+        <input type="number" id="ms-rank" placeholder="1">
+      </div>
+      <div class="form-group">
+        <label>Học phí min (triệu)</label>
+        <input type="number" id="ms-fee-min" placeholder="12">
+      </div>
+      <div class="form-group">
+        <label>Học phí max (triệu)</label>
+        <input type="number" id="ms-fee-max" placeholder="28">
+      </div>
+      <div class="form-group full">
+        <label>Mô tả</label>
+        <textarea id="ms-desc" placeholder="Mô tả về trường..."></textarea>
+      </div>
+      <div class="form-group">
+        <label>URL ảnh</label>
+        <input type="text" id="ms-img" placeholder="https://...">
+      </div>
+      <div class="form-group">
+        <label>Website</label>
+        <input type="text" id="ms-web" placeholder="https://vnu.edu.vn">
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+      <span style="font-weight:700;" id="major-count-label">Ngành đào tạo (0)</span>
+      <button class="btn-outline" style="padding:6px 14px; font-size:0.82rem;"
+              onclick="addMajorRow()">+ Thêm ngành</button>
+    </div>
+    <div id="majors-list"></div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal('modal-school')">Hủy</button>
+      <button class="btn-save"   onclick="saveSchool()">Lưu</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     MODAL: THÊM TRƯỜNG VÀO SO SÁNH
+     ============================================================ -->
+<div class="modal-overlay" id="modal-compare">
+  <div class="modal" style="max-width:480px;">
+    <div class="modal-header">
+      <span class="modal-title">Thêm trường so sánh</span>
+      <button class="modal-close" onclick="closeModal('modal-compare')">✕</button>
+    </div>
+    <input type="text" id="compare-search" placeholder="Tìm trường..."
+           oninput="renderCompareSearch()" style="width:100%; margin-bottom:4px;">
+    <div class="school-search-list" id="compare-search-list"></div>
+  </div>
+</div>
+
+<!-- Toast notification -->
+<div class="toast" id="toast"></div>
+
+<!-- ============================================================
+     JAVASCRIPT - Load theo thứ tự phụ thuộc
+     ============================================================ -->
+<script src="js/data.js"></script>      <!-- Dữ liệu & biến toàn cục    -->
+<script src="js/app.js"></script>       <!-- Điều hướng & tiện ích       -->
+<script src="js/auth.js"></script>      <!-- Đăng nhập / đăng xuất       -->
+<script src="js/search.js"></script>    <!-- Tra cứu & chi tiết trường   -->
+<script src="js/features.js"></script>  <!-- Gợi ý, so sánh, hồ sơ      -->
+<script src="js/admin.js"></script>     <!-- Quản lý trường & người dùng -->
+
+<script>
+  // Khởi tạo ban đầu (render search để sẵn sàng khi navigate)
+  renderSearchResults();
+</script>
+
+</body>
+</html>

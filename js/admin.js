@@ -1,0 +1,214 @@
+/* ============================================================
+   UniMate - admin.js
+   Quản lý trường đại học và người dùng (dành cho Admin)
+   ============================================================ */
+
+/* ============================================================
+   QUẢN LÝ TRƯỜNG ĐẠI HỌC
+   ============================================================ */
+
+function renderAdminSchools(query = '') {
+  const q    = query.toLowerCase();
+  const list = schools.filter(s =>
+    !q || s.name.toLowerCase().includes(q) || s.code.toLowerCase().includes(q)
+  );
+
+  document.getElementById('admin-school-count').textContent = `${schools.length} trường trong hệ thống`;
+  document.getElementById('admin-schools-body').innerHTML = list.map(s => `
+    <tr>
+      <td style="font-weight:600; color:var(--text-secondary); font-size:0.82rem;">${s.code}</td>
+      <td style="font-weight:600;">${s.name}</td>
+      <td><span class="badge">${s.type}</span></td>
+      <td style="color:var(--primary);">${s.city}</td>
+      <td>
+        <span style="background:#EEF2FF; color:var(--primary);
+                     padding:2px 10px; border-radius:20px;
+                     font-size:0.78rem; font-weight:700;">
+          ${s.majors.length}
+        </span>
+      </td>
+      <td>
+        <button class="action-btn edit" onclick="openEditSchool(${s.id})" title="Sửa">✏️</button>
+        <button class="action-btn del"  onclick="deleteSchool(${s.id})"   title="Xóa">🗑️</button>
+      </td>
+    </tr>`).join('');
+}
+
+function filterAdminSchools(q) { renderAdminSchools(q); }
+
+/* --- Mở modal thêm trường --- */
+function openAddSchool() {
+  editingSchoolId = null;
+  document.getElementById('modal-school-title').textContent = 'Thêm trường';
+
+  // Xóa các trường input
+  ['ms-name','ms-code','ms-city','ms-desc','ms-img','ms-web'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('ms-rank').value    = '';
+  document.getElementById('ms-fee-min').value = '';
+  document.getElementById('ms-fee-max').value = '';
+
+  tempMajors = [];
+  renderMajors();
+  document.getElementById('modal-school').classList.add('open');
+}
+
+/* --- Mở modal chỉnh sửa trường --- */
+function openEditSchool(id) {
+  editingSchoolId = id;
+  const s = schools.find(x => x.id === id);
+  document.getElementById('modal-school-title').textContent = 'Chỉnh sửa trường';
+
+  document.getElementById('ms-name').value    = s.name;
+  document.getElementById('ms-code').value    = s.code;
+  document.getElementById('ms-city').value    = s.city;
+  document.getElementById('ms-type').value    = s.type;
+  document.getElementById('ms-region').value  = s.region;
+  document.getElementById('ms-rank').value    = s.rank;
+  document.getElementById('ms-fee-min').value = s.feeMin;
+  document.getElementById('ms-fee-max').value = s.feeMax;
+  document.getElementById('ms-desc').value    = s.desc;
+  document.getElementById('ms-img').value     = s.img  || '';
+  document.getElementById('ms-web').value     = s.web  || '';
+
+  tempMajors = JSON.parse(JSON.stringify(s.majors));
+  renderMajors();
+  document.getElementById('modal-school').classList.add('open');
+}
+
+/* --- Render danh sách ngành trong modal --- */
+function renderMajors() {
+  document.getElementById('major-count-label').textContent = `Ngành đào tạo (${tempMajors.length})`;
+  document.getElementById('majors-list').innerHTML = tempMajors.map((m, i) => `
+    <div class="major-row">
+      <input type="text"   value="${m.name}"  placeholder="Tên ngành"
+             oninput="tempMajors[${i}].name=this.value">
+      <input type="text"   value="${m.code}"  placeholder="Mã ngành"
+             oninput="tempMajors[${i}].code=this.value">
+      <input type="text"   value="${m.combo}" placeholder="Tổ hợp"
+             oninput="tempMajors[${i}].combo=this.value">
+      <input type="number" value="${m.score}" placeholder="Điểm" step="0.1"
+             oninput="tempMajors[${i}].score=parseFloat(this.value)||0">
+      <button class="btn-del-major" onclick="deleteMajor(${i})">🗑️</button>
+    </div>`).join('');
+}
+
+function addMajorRow() {
+  tempMajors.push({ name: '', code: '', combo: 'A00', score: 0 });
+  renderMajors();
+}
+
+function deleteMajor(i) {
+  tempMajors.splice(i, 1);
+  renderMajors();
+}
+
+/* --- Lưu trường (thêm mới hoặc cập nhật) --- */
+function saveSchool() {
+  const name = document.getElementById('ms-name').value.trim();
+  const code = document.getElementById('ms-code').value.trim();
+
+  if (!name || !code) {
+    showToast('Vui lòng nhập tên và mã trường!', 'error');
+    return;
+  }
+
+  const data = {
+    name, code,
+    type:   document.getElementById('ms-type').value,
+    city:   document.getElementById('ms-city').value,
+    region: document.getElementById('ms-region').value,
+    rank:   parseInt(document.getElementById('ms-rank').value)    || 99,
+    feeMin: parseInt(document.getElementById('ms-fee-min').value) || 0,
+    feeMax: parseInt(document.getElementById('ms-fee-max').value) || 0,
+    desc:   document.getElementById('ms-desc').value,
+    img:    document.getElementById('ms-img').value,
+    web:    document.getElementById('ms-web').value,
+    majors: tempMajors,
+  };
+
+  if (editingSchoolId) {
+    const idx   = schools.findIndex(x => x.id === editingSchoolId);
+    schools[idx] = { ...schools[idx], ...data };
+    showToast('Đã cập nhật trường!', 'success');
+  } else {
+    data.id = Date.now();
+    schools.push(data);
+    showToast('Đã thêm trường mới!', 'success');
+  }
+
+  closeModal('modal-school');
+  renderAdminSchools();
+  renderSearchResults();
+}
+
+/* --- Xóa trường --- */
+function deleteSchool(id) {
+  if (!confirm('Bạn có chắc muốn xóa trường này?')) return;
+  schools        = schools.filter(s => s.id !== id);
+  compareSchools = compareSchools.filter(s => s.id !== id);
+  savedSchools.delete(id);
+  renderAdminSchools();
+  renderSearchResults();
+  showToast('Đã xóa trường.', '');
+}
+
+/* ============================================================
+   QUẢN LÝ NGƯỜI DÙNG
+   ============================================================ */
+
+function renderAdminUsers(query = '') {
+  const q    = query.toLowerCase();
+  const list = users.filter(u =>
+    !q || u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q)
+  );
+
+  document.getElementById('admin-user-count').textContent = `${users.length} người dùng trong hệ thống`;
+  document.getElementById('admin-users-body').innerHTML = list.map(u => `
+    <tr>
+      <td>
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div style="width:30px; height:30px; border-radius:8px;
+                      background:${u.role === 'admin' ? '#EEF2FF' : '#F3F4F6'};
+                      display:flex; align-items:center; justify-content:center; font-size:0.9rem;">
+            ${u.role === 'admin' ? '🛡' : '👤'}
+          </div>
+          <span style="font-weight:600; font-size:0.875rem;">${u.name}</span>
+        </div>
+      </td>
+      <td style="color:var(--text-secondary); font-size:0.875rem;">${u.email}</td>
+      <td>
+        <select class="role-select" onchange="changeRole(${u.id}, this.value)">
+          <option value="student" ${u.role === 'student' ? 'selected' : ''}>Học sinh</option>
+          <option value="admin"   ${u.role === 'admin'   ? 'selected' : ''}>Quản trị</option>
+        </select>
+      </td>
+      <td style="color:var(--text-secondary);">${u.school || '—'}</td>
+      <td style="color:var(--text-secondary); font-size:0.875rem;">${u.joined}</td>
+      <td>
+        <button class="action-btn del" onclick="deleteUser(${u.id})" title="Xóa">🗑️</button>
+      </td>
+    </tr>`).join('');
+}
+
+function filterAdminUsers(q) { renderAdminUsers(q); }
+
+function changeRole(id, role) {
+  const u = users.find(x => x.id === id);
+  if (u) {
+    u.role = role;
+    showToast('Đã cập nhật vai trò.', 'success');
+  }
+}
+
+function deleteUser(id) {
+  if (id === currentUser.id) {
+    showToast('Không thể xóa tài khoản đang đăng nhập!', 'error');
+    return;
+  }
+  if (!confirm('Xóa người dùng này?')) return;
+  users = users.filter(u => u.id !== id);
+  renderAdminUsers();
+  showToast('Đã xóa người dùng.', '');
+}

@@ -1,0 +1,153 @@
+/* ============================================================
+   UniMate - detail.css
+   Giao diện Chi tiết trường
+   ============================================================ */
+
+.detail-hero {
+  width: 100%; height: 200px;
+  border-radius: var(--radius);
+  display: flex; align-items: flex-end;
+  padding: 24px;
+  margin-bottom: 20px;
+  position: relative; overflow: hidden;
+  box-shadow: var(--card-shadow);
+}
+
+.detail-hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 60%);
+}
+
+.detail-hero-content { position: relative; color: white; }
+.detail-hero h1 { font-size: 1.5rem; font-weight: 800; margin-bottom: 8px; }
+.detail-hero-badges { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.detail-badge {
+  padding: 4px 12px; border-radius: 20px;
+  background: rgba(255,255,255,0.2);
+  font-size: 0.78rem; font-weight: 500;
+  backdrop-filter: blur(4px);
+  color: white;
+}
+
+.detail-actions { display: flex; gap: 10px; margin-bottom: 20px; }
+
+.btn-heart {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 20px;
+  background: var(--primary); color: white;
+  border: none; border-radius: 10px;
+  font-size: 0.875rem; font-weight: 600;
+  cursor: pointer; font-family: inherit;
+  transition: all 0.2s;
+}
+.btn-heart:hover { background: var(--primary-dark); }
+.btn-heart.saved { background: #FEE2E2; color: var(--danger); }
+
+.btn-web {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 20px;
+  background: var(--white); color: var(--text);
+  border: 1.5px solid var(--border); border-radius: 10px;
+  font-size: 0.875rem; font-weight: 600;
+  cursor: pointer; font-family: inherit;
+  transition: all 0.2s;
+}
+.btn-web:hover { border-color: var(--primary); color: var(--primary); }
+
+.info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+
+.info-card {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  display: flex; align-items: center; gap: 16px;
+  box-shadow: var(--card-shadow);
+}
+
+.info-icon {
+  width: 44px; height: 44px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.2rem; flex-shrink: 0;
+}
+.info-icon.purple { background: #EDE9FE; }
+.info-icon.yellow { background: #FEF3C7; }
+
+.info-label { font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 2px; }
+.info-value { font-size: 1rem; font-weight: 700; }
+
+@media (max-width: 768px) {
+  .info-grid { grid-template-columns: 1fr; }
+}
+
+/* ============================================================
+   UniMate - compare.css
+   Giao diện So sánh trường
+   ============================================================ */
+
+.compare-chips {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+  align-items: center;
+}
+
+.chip {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 16px;
+  background: var(--primary-light);
+  border-radius: 20px;
+  font-size: 0.85rem; font-weight: 600;
+  color: var(--primary);
+}
+
+.chip-remove {
+  background: none; border: none; cursor: pointer;
+  color: var(--primary); font-size: 1rem; line-height: 1;
+  padding: 0 2px; border-radius: 50%;
+  transition: background 0.15s;
+}
+.chip-remove:hover { background: rgba(59,91,219,0.15); }
+
+.btn-add-school {
+  display: flex; align-items: center; gap: 6px;
+  padding: 8px 16px;
+  background: var(--white); color: var(--text);
+  border: 1.5px solid var(--border); border-radius: 20px;
+  font-size: 0.85rem; font-weight: 600;
+  cursor: pointer; font-family: inherit;
+  transition: all 0.15s;
+}
+.btn-add-school:hover { border-color: var(--primary); color: var(--primary); }
+
+.compare-table th { background: #FAFAFA; }
+.compare-table .school-col { text-align: center; }
+
+.school-avatar {
+  width: 48px; height: 48px; border-radius: 12px;
+  color: white;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.8rem; font-weight: 700;
+  margin: 0 auto 8px;
+}
+
+/* Modal so sánh */
+.school-search-list { max-height: 300px; overflow-y: auto; margin-top: 16px; }
+
+.school-search-item {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 12px; border-radius: 8px; cursor: pointer;
+  transition: background 0.15s;
+}
+.school-search-item:hover { background: var(--bg); }
+.school-search-item .name { font-weight: 600; font-size: 0.875rem; }
+.school-search-item .code { font-size: 0.78rem; color: var(--text-secondary); }
+
+.btn-add-to-compare {
+  background: var(--primary); color: white; border: none;
+  padding: 4px 12px; border-radius: 6px;
+  font-size: 0.78rem; font-weight: 600; cursor: pointer;
+  font-family: inherit;
+}
