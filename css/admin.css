@@ -1,0 +1,77 @@
+/* ============================================================
+   UniMate - admin.css
+   Giao diện trang Quản lý trường và Quản lý người dùng
+   ============================================================ */
+
+/* Header trang admin */
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+}
+
+.admin-header h1 { font-size: 1.6rem; font-weight: 800; }
+.admin-header p  { font-size: 0.875rem; color: var(--text-secondary); margin-top: 2px; }
+
+/* Card bao bọc bảng */
+.admin-card {
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--card-shadow);
+  padding: 20px;
+}
+
+/* Ô tìm kiếm trong admin */
+.search-admin {
+  display: flex; align-items: center; gap: 8px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px; padding: 8px 12px;
+  margin-bottom: 20px; width: 260px;
+}
+.search-admin input {
+  border: none; font-size: 0.875rem;
+  font-family: inherit; flex: 1; outline: none;
+  background: transparent; width: auto;
+}
+
+/* Nút thao tác trong bảng */
+.action-btn {
+  background: none; border: none; cursor: pointer;
+  padding: 4px 8px; border-radius: 6px;
+  font-size: 1rem; transition: all 0.15s;
+}
+.action-btn.edit { color: var(--text-secondary); }
+.action-btn.edit:hover { background: #EEF2FF; color: var(--primary); }
+.action-btn.del  { color: #D1D5DB; }
+.action-btn.del:hover  { background: #FEE2E2; color: var(--danger); }
+
+/* Dropdown vai trò */
+.role-select {
+  padding: 4px 28px 4px 10px;
+  border: 1.5px solid var(--border);
+  border-radius: 6px; font-size: 0.82rem;
+  font-family: inherit; background: var(--white);
+  cursor: pointer; appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236B7280' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+}
+
+/* Hàng ngành trong modal */
+.major-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr 36px;
+  gap: 8px; margin-bottom: 8px; align-items: center;
+}
+
+.btn-del-major {
+  background: none; border: none; cursor: pointer;
+  color: var(--danger); font-size: 1rem; padding: 4px;
+  transition: opacity 0.15s;
+}
+.btn-del-major:hover { opacity: 0.7; }
+
+@media (max-width: 768px) {
+  .major-row { grid-template-columns: 1fr; }
+}
