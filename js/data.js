@@ -139,7 +139,7 @@ let users = [
 ];
 
 // Trạng thái toàn ứng dụng
-let schools         = JSON.parse(JSON.stringify(SCHOOLS)); // bản sao có thể chỉnh sửa
+let schools = [];
 let currentUser     = null;
 let savedSchools    = new Set();
 let compareSchools  = [];
@@ -154,3 +154,59 @@ const COLORS = [
   '#862E9C','#D6336C'
 ];
 function schoolColor(i) { return COLORS[i % COLORS.length]; }
+
+async function loadSchools() {
+  try {
+    const response = await fetch("http://localhost:5000/api/truong");
+    const data = await response.json();
+
+    schools = await Promise.all(
+  data.map(async (item) => {
+
+    const responseNganh = await fetch(
+      `http://localhost:5000/api/truong/${item.id_truong}/nganh`
+    );
+
+    const majors = await responseNganh.json();
+
+    const hocPhis = majors.map(m => m.hoc_phi);
+
+    const feeMin =
+      hocPhis.length > 0
+        ? Math.min(...hocPhis) / 1000000
+        : 0;
+
+    const feeMax =
+      hocPhis.length > 0
+        ? Math.max(...hocPhis) / 1000000
+        : 0;
+
+    return {
+      id: item.id_truong,
+      code: item.ma_truong,
+      name: item.ten_truong,
+      type: item.loai_hinh,
+      city: item.dia_chi,
+      region: "",
+      rank: item.thu_hang || 0,
+
+      feeMin,
+      feeMax,
+
+      desc: "",
+      img: "",
+      web: "",
+
+      majors,
+
+      khoi_nganh: item.khoi_nganh,
+      trong_diem: item.trong_diem
+    };
+  })
+);
+
+    console.log("Da tai", schools.length, "truong");
+  } catch (error) {
+    console.error("Loi load truong:", error);
+  }
+}

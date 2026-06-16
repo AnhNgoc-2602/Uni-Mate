@@ -72,7 +72,12 @@ function openEditSchool(id) {
   document.getElementById('ms-img').value     = s.img  || '';
   document.getElementById('ms-web').value     = s.web  || '';
 
-  tempMajors = JSON.parse(JSON.stringify(s.majors));
+  tempMajors = s.majors.map(m => ({
+  name: m.name || m.ten_nganh || "",
+  code: m.code || m.ma_nganh || "",
+  combo: m.combo || m.to_hop || "",
+  score: m.score || m.diem_chuan || 0
+}));
   renderMajors();
   document.getElementById('modal-school').classList.add('open');
 }
@@ -129,29 +134,101 @@ function saveSchool() {
   };
 
   if (editingSchoolId) {
-    const idx   = schools.findIndex(x => x.id === editingSchoolId);
-    schools[idx] = { ...schools[idx], ...data };
-    showToast('Đã cập nhật trường!', 'success');
-  } else {
-    data.id = Date.now();
-    schools.push(data);
-    showToast('Đã thêm trường mới!', 'success');
-  }
 
-  closeModal('modal-school');
-  renderAdminSchools();
-  renderSearchResults();
+    fetch(
+        `http://localhost:5000/api/truong/${editingSchoolId}`,
+        {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                ma_truong: data.code,
+                ten_truong: data.name,
+                dia_chi: data.city,
+                loai_hinh: data.type,
+                khoi_nganh: "",
+                thu_hang: data.rank,
+                trong_diem: 0
+            })
+        }
+    )
+    .then(res => res.json())
+    .then(async () => {
+
+        await loadSchools();
+
+        renderAdminSchools();
+        renderSearchResults();
+
+        closeModal('modal-school');
+
+        showToast(
+            'Đã cập nhật trường!',
+            'success'
+        );
+    })
+    .catch(err => {
+        console.error(err);
+
+        showToast(
+            'Lỗi cập nhật trường',
+            'error'
+        );
+    });
+
+} else {
+
+    showToast(
+        'Chưa làm chức năng thêm trường vào MySQL',
+        'error'
+    );
+}
 }
 
 /* --- Xóa trường --- */
-function deleteSchool(id) {
-  if (!confirm('Bạn có chắc muốn xóa trường này?')) return;
-  schools        = schools.filter(s => s.id !== id);
-  compareSchools = compareSchools.filter(s => s.id !== id);
-  savedSchools.delete(id);
-  renderAdminSchools();
-  renderSearchResults();
-  showToast('Đã xóa trường.', '');
+async function deleteSchool(id) {
+
+  if (!confirm('Bạn có chắc muốn xóa trường này?')) {
+    return;
+  }
+
+  try {
+
+    const response = await fetch(
+      `http://localhost:5000/api/truong/${id}`,
+      {
+        method: "DELETE"
+      }
+    );
+
+    const result = await response.json();
+
+    await loadSchools();
+
+    renderAdminSchools();
+    renderSearchResults();
+
+    compareSchools = compareSchools.filter(
+      s => s.id !== id
+    );
+
+    savedSchools.delete(id);
+
+    showToast(
+      result.message,
+      "success"
+    );
+
+  } catch (error) {
+
+    console.error(error);
+
+    showToast(
+      "Lỗi xóa trường",
+      "error"
+    );
+  }
 }
 
 /* ============================================================

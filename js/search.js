@@ -36,19 +36,38 @@ function clearFilters() {
 
 /* ---------- CHI TIẾT TRƯỜNG ---------- */
 
-function openDetail(id) {
+async function openDetail(id) {
   currentDetailId = id;
   const s       = schools.find(x => x.id === id);
   const idx     = schools.indexOf(s);
   const isSaved = savedSchools.has(id);
+  const response = await fetch(
+    `http://localhost:5000/api/truong/${id}/nganh`
+);
 
-  const majorsHTML = s.majors.map(m => `
+const majors = await response.json();
+const hocPhis = majors.map(m => m.hoc_phi);
+
+const feeMin =
+    hocPhis.length > 0
+        ? Math.min(...hocPhis)
+        : 0;
+
+const feeMax =
+    hocPhis.length > 0
+        ? Math.max(...hocPhis)
+        : 0;
+
+console.log("MAJORS =", majors);
+
+  const majorsHTML = majors.map(m => `
     <tr>
-      <td>${m.name}</td>
-      <td><span class="code-badge">${m.code}</span></td>
-      <td><span class="code-badge">${m.combo}</span></td>
-      <td class="score-val">${m.score}</td>
-    </tr>`).join('');
+      <td>${m.ten_nganh}</td>
+      <td><span class="code-badge">${m.ma_nganh}</span></td>
+      <td><span class="code-badge">${m.to_hop}</span></td>
+      <td class="score-val">${m.diem_chuan}</td>
+    </tr>
+`).join('');
 
   document.getElementById('detail-content').innerHTML = `
     <div style="margin-bottom:16px;">
@@ -93,7 +112,12 @@ function openDetail(id) {
         <div class="info-icon yellow">💰</div>
         <div>
           <div class="info-label">Học phí</div>
-          <div class="info-value">${s.feeMin} - ${s.feeMax} triệu/năm</div>
+          <div class="info-value">
+    ${(feeMin / 1000000).toFixed(0)}
+    -
+    ${(feeMax / 1000000).toFixed(0)}
+    triệu/năm
+</div>
         </div>
       </div>
     </div>
@@ -107,7 +131,7 @@ function openDetail(id) {
     <!-- Ngành đào tạo -->
     <div class="card">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-        <div class="card-title" style="margin-bottom:0;">📖 Ngành đào tạo (${s.majors.length} ngành)</div>
+        <div class="card-title" style="margin-bottom:0;">📖 Ngành đào tạo (${majors.length} ngành)</div>
       </div>
       <div class="table-wrap">
         <table>

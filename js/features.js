@@ -78,8 +78,23 @@ function renderCompare() {
     ['Xếp hạng',              s => `<span style="color:var(--primary);font-weight:700">🏆 #${s.rank}</span>`],
     ['Học phí (triệu/năm)',   s => `📋 ${s.feeMin} – ${s.feeMax}`],
     ['Số ngành',              s => `📖 ${s.majors.length} ngành`],
-    ['Điểm chuẩn thấp nhất', s => `<b>${s.majors.length ? Math.min(...s.majors.map(m => m.score)) : '—'}</b>`],
-    ['Điểm chuẩn cao nhất',  s => `<b>${s.majors.length ? Math.max(...s.majors.map(m => m.score)) : '—'}</b>`],
+    ['Điểm chuẩn thấp nhất',
+ s => {
+   const scores = s.majors
+     .map(m => parseFloat(m.score || m.diem_chuan))
+     .filter(x => !isNaN(x));
+
+   return `<b>${scores.length ? Math.min(...scores) : '—'}</b>`;
+ }],
+
+['Điểm chuẩn cao nhất',
+ s => {
+   const scores = s.majors
+     .map(m => parseFloat(m.score || m.diem_chuan))
+     .filter(x => !isNaN(x));
+
+   return `<b>${scores.length ? Math.max(...scores) : '—'}</b>`;
+ }],
   ];
 
   const rowsHTML = rows.map(([label, fn]) => `
@@ -142,7 +157,116 @@ function toggleTag(el) {
   el.classList.toggle('selected');
 }
 
-function saveProfile() {
-  showToast('Đã lưu thông tin thành công! ✓', 'success');
-  renderSuggest(); // Cập nhật lại gợi ý nếu điểm thay đổi
+async function saveProfile() {
+
+  const selectedTags = [...document.querySelectorAll("#interest-tags .tag.selected")]
+    .map(tag => tag.textContent);
+
+  const data = {
+    id_nd: currentUser.id,
+
+    ho_ten: document.getElementById("p-name").value,
+    so_dien_thoai: document.getElementById("p-phone").value,
+    truong_thpt: document.getElementById("p-school").value,
+    tinh_thanh: document.getElementById("p-city").value,
+
+    diem_toan: document.getElementById("s-toan").value || null,
+    diem_ly: document.getElementById("s-ly").value || null,
+    diem_hoa: document.getElementById("s-hoa").value || null,
+    diem_van: document.getElementById("s-van").value || null,
+    diem_anh: document.getElementById("s-anh").value || null,
+    diem_sinh: document.getElementById("s-sinh").value || null,
+    diem_su: document.getElementById("s-su").value || null,
+    diem_dia: document.getElementById("s-dia").value || null,
+    diem_gdcd: document.getElementById("s-gdcd").value || null,
+
+    nganh_muc_tieu: selectedTags.join(", "),
+    khu_vuc_mong_muon: document.getElementById("p-region").value,
+    ngan_sach_toi_da: document.getElementById("p-budget").value || null
+  };
+
+  try {
+
+    const response = await fetch(
+      "http://localhost:5000/api/hoso",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(data)
+      }
+    );
+
+    const result = await response.json();
+
+    showToast(result.message, "success");
+
+    renderSuggest();
+
+  } catch (error) {
+
+    console.error(error);
+
+    showToast(
+      "Không thể lưu hồ sơ",
+      "error"
+    );
+  }
+}
+
+async function loadProfile() {
+
+  try {
+
+    const response = await fetch(
+      `http://localhost:5000/api/hoso/${currentUser.id}`
+    );
+
+    if (!response.ok) return;
+
+    const data = await response.json();
+
+    document.getElementById("p-name").value = data.ho_ten || "";
+    document.getElementById("p-phone").value = data.so_dien_thoai || "";
+    document.getElementById("p-school").value = data.truong_thpt || "";
+    document.getElementById("p-city").value = data.tinh_thanh || "";
+
+    document.getElementById("s-toan").value = data.diem_toan || "";
+    document.getElementById("s-ly").value = data.diem_ly || "";
+    document.getElementById("s-hoa").value = data.diem_hoa || "";
+    document.getElementById("s-van").value = data.diem_van || "";
+    document.getElementById("s-anh").value = data.diem_anh || "";
+    document.getElementById("s-sinh").value = data.diem_sinh || "";
+    document.getElementById("s-su").value = data.diem_su || "";
+    document.getElementById("s-dia").value = data.diem_dia || "";
+    document.getElementById("s-gdcd").value = data.diem_gdcd || "";
+
+    document.getElementById("p-region").value =
+      data.khu_vuc_mong_muon || "Tất cả khu vực";
+
+    document.getElementById("p-budget").value =
+      data.ngan_sach_toi_da || "";
+
+    // tô lại các tag sở thích
+    if (data.nganh_muc_tieu) {
+
+      const interests = data.nganh_muc_tieu
+        .split(",")
+        .map(x => x.trim());
+
+      document.querySelectorAll("#interest-tags .tag")
+        .forEach(tag => {
+
+          if (interests.includes(tag.textContent.trim())) {
+            tag.classList.add("selected");
+          }
+        });
+    }
+
+  } catch (err) {
+
+    console.error("Load profile error:", err);
+
+  }
 }

@@ -37,11 +37,16 @@
       <div class="auth-form">
         <div class="form-group">
           <label>Email</label>
-          <input type="email" id="login-email" placeholder="example@gmail.com" value="anhngocanh@gmail.com">
+          <input type="email"
+       id="login-email"
+       placeholder="example@gmail.com">
+
         </div>
         <div class="form-group">
           <label>Mật khẩu</label>
-          <input type="password" id="login-pass" placeholder="••••••••" value="123456">
+          <input type="password"
+       id="login-pass"
+       placeholder="••••••••">
         </div>
         <button class="auth-submit" onclick="doLogin()">Đăng nhập</button>
       </div>
@@ -531,8 +536,9 @@
 <script src="js/admin.js"></script>     <!-- Quản lý trường & người dùng -->
 
 <script>
-  // Khởi tạo ban đầu (render search để sẵn sàng khi navigate)
-  renderSearchResults();
+  loadSchools().then(() => {
+    renderSearchResults();
+  });
 </script>
 
 </body>

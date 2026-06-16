@@ -16,26 +16,110 @@ function showPage(id) {
 /**
  * Đăng nhập
  */
-function doLogin() {
+async function doLogin() {
+
   const email = document.getElementById('login-email').value.trim();
   const pass  = document.getElementById('login-pass').value;
-  const user  = users.find(u => u.email === email && u.password === pass);
 
-  if (!user) {
-    showToast('Email hoặc mật khẩu không đúng!', 'error');
-    return;
+  try {
+
+    const response = await fetch(
+      "http://localhost:5000/api/login",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          email: email,
+          mat_khau: pass
+        })
+      }
+    );
+
+    if (!response.ok) {
+      showToast("Email hoặc mật khẩu không đúng!", "error");
+      return;
+    }
+
+    const user = await response.json();
+
+    currentUser = {
+      id: user.id_nd,
+      name: user.ho_ten,
+      email: user.email,
+      role: user.vai_tro === "ADMIN"
+        ? "admin"
+        : "student"
+    };
+
+    initApp();
+
+  } catch (error) {
+
+    console.error(error);
+
+    showToast(
+      "Không kết nối được server",
+      "error"
+    );
   }
-
-  currentUser = user;
-  initApp();
 }
 
 /**
  * Đăng ký tài khoản mới
  */
-function doRegister() {
-  showToast('Đăng ký thành công! Vui lòng đăng nhập.', 'success');
-  showPage('page-login');
+async function doRegister() {
+
+  const ho_ten = document.getElementById("reg-name").value.trim();
+  const email = document.getElementById("reg-email").value.trim();
+  const mat_khau = document.getElementById("reg-pass").value;
+
+  if (!ho_ten || !email || !mat_khau) {
+    showToast("Vui lòng nhập đầy đủ thông tin", "error");
+    return;
+  }
+
+  try {
+
+    const response = await fetch(
+      "http://localhost:5000/api/register",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          ho_ten,
+          email,
+          mat_khau
+        })
+      }
+    );
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      showToast(result.message, "error");
+      return;
+    }
+
+    showToast(
+      "Đăng ký thành công!",
+      "success"
+    );
+
+    showPage("page-login");
+
+  } catch (error) {
+
+    console.error(error);
+
+    showToast(
+      "Không kết nối được server",
+      "error"
+    );
+  }
 }
 
 /**
@@ -71,8 +155,12 @@ function initApp() {
   document.getElementById('p-school').value = currentUser.school || '';
 
   // Render dữ liệu ban đầu
+    // Render dữ liệu ban đầu
   renderAdminSchools();
-  renderAdminUsers();
-  renderSearchResults();
-  navigate('home');
+renderAdminUsers();
+renderSearchResults();
+
+loadProfile();
+
+navigate('home');
 }
