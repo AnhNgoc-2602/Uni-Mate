@@ -29,6 +29,7 @@ app.get("/api/truong", (req, res) => {
       khoi_nganh,
       thu_hang,
       trong_diem,
+      khu_vuc,
       website,
       image_url
 FROM truong_dh
@@ -79,8 +80,10 @@ app.put("/api/truong/:id", (req, res) => {
     khoi_nganh,
     thu_hang,
     trong_diem,
+    khu_vuc,
     website,
-    image_url
+    image_url,
+    majors
 } = req.body;
 
     const sql = `
@@ -93,6 +96,7 @@ app.put("/api/truong/:id", (req, res) => {
     khoi_nganh = ?,
     thu_hang = ?,
     trong_diem = ?,
+    khu_vuc = ?,
     website = ?,
     image_url = ?
         WHERE id_truong = ?
@@ -108,6 +112,7 @@ app.put("/api/truong/:id", (req, res) => {
     khoi_nganh,
     thu_hang,
     trong_diem,
+    khu_vuc,
     website,
     image_url,
     id
@@ -254,14 +259,14 @@ app.put("/api/nganh/:id", (req, res) => {
     const id = req.params.id;
 
     const {
-        ten_nganh,
-        ma_nganh,
-        he_dao_tao,
-        to_hop,
-        diem_chuan,
-        hoc_phi,
-        chi_tieu
-    } = req.body;
+    ten_nganh,
+    ma_nganh,
+    he_dao_tao = "Đại học chính quy",
+    to_hop,
+    diem_chuan,
+    hoc_phi,
+    chi_tieu
+} = req.body;
 
     const sql = `
         UPDATE nganh_hoc

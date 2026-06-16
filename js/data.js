@@ -139,13 +139,17 @@ let users = [
 ];
 
 // Trạng thái toàn ứng dụng
+// Trạng thái toàn ứng dụng
 let schools = [];
 let currentUser     = null;
+
 let savedSchools    = new Set();
 let compareSchools  = [];
 let editingSchoolId = null;
 let tempMajors      = [];
 let currentDetailId = null;
+
+let selectedMajorYear = "2025";
 
 // Màu sắc đại diện cho từng trường
 const COLORS = [
@@ -187,15 +191,15 @@ async function loadSchools() {
       name: item.ten_truong,
       type: item.loai_hinh,
       city: item.dia_chi,
-      region: "",
+      region: item.khu_vuc || "",
       rank: item.thu_hang || 0,
 
       feeMin,
       feeMax,
 
       desc: "",
-      img: "",
-      web: "",
+      img: item.image_url || "",
+      web: item.website || "",
 
       majors,
 

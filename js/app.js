@@ -108,9 +108,15 @@ function schoolCardHTML(s, idx) {
   return `
     <div class="school-card" onclick="openDetail(${s.id})">
       <div class="school-img"
-           style="background: linear-gradient(135deg, ${schoolColor(idx)}, ${schoolColor(idx + 3)});">
-        <span style="font-size:2.5rem; opacity:0.4">🎓</span>
-      </div>
+     style="
+       background:
+       ${s.img
+         ? `url('${s.img}') center/cover`
+         : `linear-gradient(135deg, ${schoolColor(idx)}, ${schoolColor(idx + 3)})`
+       };
+     ">
+  ${s.img ? '' : '<span style="font-size:2.5rem; opacity:0.4">🎓</span>'}
+</div>
 
       <div class="school-body">
         <div class="school-name-row">

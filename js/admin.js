@@ -72,11 +72,17 @@ function openEditSchool(id) {
   document.getElementById('ms-img').value     = s.img  || '';
   document.getElementById('ms-web').value     = s.web  || '';
 
-  tempMajors = s.majors.map(m => ({
+ tempMajors = s.majors.map(m => ({
+  id_nganh: m.id_nganh || null,
+
   name: m.name || m.ten_nganh || "",
   code: m.code || m.ma_nganh || "",
   combo: m.combo || m.to_hop || "",
-  score: m.score || m.diem_chuan || 0
+  score: m.score || m.diem_chuan || 0,
+
+  nam: m.nam || 2025,
+  hoc_phi: m.hoc_phi || 0,
+  chi_tieu: m.chi_tieu || 0
 }));
   renderMajors();
   document.getElementById('modal-school').classList.add('open');
@@ -120,70 +126,103 @@ function saveSchool() {
   }
 
   const data = {
-    name, code,
-    type:   document.getElementById('ms-type').value,
-    city:   document.getElementById('ms-city').value,
+    name,
+    code,
+    type: document.getElementById('ms-type').value,
+    city: document.getElementById('ms-city').value,
     region: document.getElementById('ms-region').value,
-    rank:   parseInt(document.getElementById('ms-rank').value)    || 99,
+    rank: parseInt(document.getElementById('ms-rank').value) || 99,
     feeMin: parseInt(document.getElementById('ms-fee-min').value) || 0,
     feeMax: parseInt(document.getElementById('ms-fee-max').value) || 0,
-    desc:   document.getElementById('ms-desc').value,
-    img:    document.getElementById('ms-img').value,
-    web:    document.getElementById('ms-web').value,
+    desc: document.getElementById('ms-desc').value,
+    img: document.getElementById('ms-img').value,
+    web: document.getElementById('ms-web').value,
     majors: tempMajors,
   };
 
   if (editingSchoolId) {
 
     fetch(
-        `http://localhost:5000/api/truong/${editingSchoolId}`,
-        {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                ma_truong: data.code,
-                ten_truong: data.name,
-                dia_chi: data.city,
-                loai_hinh: data.type,
-                khoi_nganh: "",
-                thu_hang: data.rank,
-                trong_diem: 0
-            })
-        }
+      `http://localhost:5000/api/truong/${editingSchoolId}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          ma_truong: data.code,
+          ten_truong: data.name,
+          dia_chi: data.city,
+          loai_hinh: data.type,
+          khoi_nganh: "",
+          thu_hang: data.rank,
+          trong_diem: 0,
+          khu_vuc: data.region,
+
+          website: data.web,
+          image_url: data.img,
+          majors: data.majors
+        })
+      }
     )
     .then(res => res.json())
     .then(async () => {
 
-        await loadSchools();
+      // ==========================
+      // CẬP NHẬT NGÀNH HỌC
+      // ==========================
+      for (const m of tempMajors) {
 
-        renderAdminSchools();
-        renderSearchResults();
+        if (!m.id_nganh) continue;
 
-        closeModal('modal-school');
-
-        showToast(
-            'Đã cập nhật trường!',
-            'success'
+        await fetch(
+          `http://localhost:5000/api/nganh/${m.id_nganh}`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              ten_nganh: m.name,
+              ma_nganh: m.code,
+              he_dao_tao: "Đại học chính quy",
+              to_hop: m.combo,
+              diem_chuan: m.score,
+              hoc_phi: m.hoc_phi || 0,
+              chi_tieu: m.chi_tieu || 0
+            })
+          }
         );
+      }
+
+      await loadSchools();
+
+      renderAdminSchools();
+      renderSearchResults();
+
+      closeModal('modal-school');
+
+      showToast(
+        'Đã cập nhật trường!',
+        'success'
+      );
     })
     .catch(err => {
-        console.error(err);
+      console.error(err);
 
-        showToast(
-            'Lỗi cập nhật trường',
-            'error'
-        );
+      showToast(
+        'Lỗi cập nhật trường',
+        'error'
+      );
     });
 
-} else {
+  } else {
 
     showToast(
-        'Chưa làm chức năng thêm trường vào MySQL',
-        'error'
+      'Chưa làm chức năng thêm trường vào MySQL',
+      'error'
     );
-}
+  }
 }
 
 /* --- Xóa trường --- */

@@ -39,13 +39,27 @@ function clearFilters() {
 async function openDetail(id) {
   currentDetailId = id;
   const s       = schools.find(x => x.id === id);
+  console.log("IMAGE URL =", s.img);
   const idx     = schools.indexOf(s);
   const isSaved = savedSchools.has(id);
   const response = await fetch(
     `http://localhost:5000/api/truong/${id}/nganh`
 );
 
-const majors = await response.json();
+const allMajors = await response.json();
+
+const majors =
+    selectedMajorYear === "all"
+        ? allMajors
+        : allMajors.filter(
+            m => String(m.nam) === String(selectedMajorYear)
+        );
+
+console.log("YEAR =", selectedMajorYear);
+console.log("ALL =", allMajors.length);
+console.log("FILTERED =", majors.length);
+
+console.log("FILTERED =", majors.length);
 const hocPhis = majors.map(m => m.hoc_phi);
 
 const feeMin =
@@ -77,7 +91,13 @@ console.log("MAJORS =", majors);
 
     <!-- Hero banner trường -->
     <div class="detail-hero"
-         style="background: linear-gradient(135deg, ${schoolColor(idx)} 30%, ${schoolColor(idx + 2)});">
+     style="
+       background-image:
+         linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)),
+         url('${s.img}');
+       background-size: cover;
+       background-position: center;
+     ">
       <div class="detail-hero-content">
         <h1>${s.name}</h1>
         <div class="detail-hero-badges">
@@ -125,14 +145,30 @@ console.log("MAJORS =", majors);
     <!-- Giới thiệu -->
     <div class="card">
       <div class="card-title">Giới thiệu</div>
-      <p style="font-size:0.875rem; color:var(--text-secondary); line-height:1.7;">${s.desc}</p>
+      <p style="font-size:0.875rem; color:var(--text-secondary); line-height:1.7;">
+  ${s.desc || 'Là một trong những trường đại học có chất lượng đào tạo tốt, cung cấp môi trường học tập hiện đại và đa dạng ngành nghề cho sinh viên.'}
+</p>
     </div>
 
     <!-- Ngành đào tạo -->
     <div class="card">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-        <div class="card-title" style="margin-bottom:0;">📖 Ngành đào tạo (${majors.length} ngành)</div>
-      </div>
+  <div class="card-title" style="margin-bottom:0;">
+    📖 Ngành đào tạo (${majors.length} ngành)
+  </div>
+
+<select id="major-year-filter"
+        onchange="
+          selectedMajorYear=this.value;
+          openDetail(${s.id});
+        "
+        style="padding:6px 10px;border:1px solid #ddd;border-radius:8px;">
+    <option value="all">Tất cả năm</option>
+    <option value="2025">2025</option>
+    <option value="2024">2024</option>
+    <option value="2023">2023</option>
+  </select>
+</div>
       <div class="table-wrap">
         <table>
           <thead>
@@ -144,6 +180,13 @@ console.log("MAJORS =", majors);
         </table>
       </div>
     </div>`;
+  setTimeout(() => {
+  const select = document.getElementById('major-year-filter');
+
+  if (select) {
+    select.value = selectedMajorYear;
+  }
+}, 0);
 
   navigate('detail');
 }
